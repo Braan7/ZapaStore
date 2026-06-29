@@ -247,13 +247,13 @@
     background: var(--negro); color: var(--crema); border-color: var(--negro);
   }
   .prod-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 2rem; max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem; max-width: 1200px; margin: 0 auto;
   }
   .prod-card { position: relative; cursor: none; }
   .prod-img-wrap {
     position: relative; overflow: hidden;
-    background: var(--crema); aspect-ratio: 3/4; margin-bottom: 1.2rem;
+    background: var(--crema); aspect-ratio: 1/1; margin-bottom: 1.2rem;
   }
   .prod-img {
     width: 100%; height: 100%; object-fit: cover;
@@ -505,15 +505,13 @@
 <div class="banda">
   <div class="banda-track" id="track">
     <span class="banda-item">Envíos al Estado de México y Neza</span>
-    <span class="banda-item">Garantía de 6 meses</span>
-    <span class="banda-item">Devoluciones sin costo</span>
     <span class="banda-item">Tallas del 3 al 6 — sistema mexicano</span>
     <span class="banda-item">Pedidos por WhatsApp</span>
+    <span class="banda-item">Nuevos modelos cada semana</span>
     <span class="banda-item">Envíos al Estado de México y Neza</span>
-    <span class="banda-item">Garantía de 6 meses</span>
-    <span class="banda-item">Devoluciones sin costo</span>
     <span class="banda-item">Tallas del 3 al 6 — sistema mexicano</span>
     <span class="banda-item">Pedidos por WhatsApp</span>
+    <span class="banda-item">Nuevos modelos cada semana</span>
   </div>
 </div>
 
@@ -692,9 +690,45 @@
       <span>Total</span>
       <span id="carritoTotal">$0</span>
     </div>
-    <p style="font-size:0.68rem;color:var(--gris);margin-bottom:1rem;line-height:1.6;">
-      📍 Envíos al <strong>Estado de México</strong> y <strong>Neza</strong> y alrededores.<br>
-      Elige con quién contactar para coordinar tu pedido:
+
+    <!-- FORMULARIO DEL CLIENTE -->
+    <div style="margin:1.2rem 0;display:flex;flex-direction:column;gap:0.8rem;">
+      <p style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gris);margin-bottom:0.2rem;">Datos para tu pedido</p>
+
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <label style="font-size:0.68rem;color:var(--negro);font-weight:500;">👤 Nombre completo</label>
+        <input id="clienteNombre" type="text" placeholder="Tu nombre..."
+          style="border:1px solid var(--beige);padding:0.7rem 0.9rem;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;background:var(--crema);color:var(--negro);width:100%;transition:border 0.2s;"
+          onfocus="this.style.borderColor='var(--dorado)'" onblur="this.style.borderColor='var(--beige)'">
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <label style="font-size:0.68rem;color:var(--negro);font-weight:500;">👟 Talla de zapato</label>
+        <select id="clienteTalla"
+          style="border:1px solid var(--beige);padding:0.7rem 0.9rem;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;background:var(--crema);color:var(--negro);width:100%;transition:border 0.2s;appearance:none;cursor:pointer;"
+          onfocus="this.style.borderColor='var(--dorado)'" onblur="this.style.borderColor='var(--beige)'">
+          <option value="">Selecciona tu talla...</option>
+          <option value="3">3</option>
+          <option value="3½">3½</option>
+          <option value="4">4</option>
+          <option value="4½">4½</option>
+          <option value="5">5</option>
+          <option value="5½">5½</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <label style="font-size:0.68rem;color:var(--negro);font-weight:500;">📍 Zona de entrega</label>
+        <input id="clienteZona" type="text" placeholder="Ej: Neza, Ecatepec, Chimalhuacán..."
+          style="border:1px solid var(--beige);padding:0.7rem 0.9rem;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;background:var(--crema);color:var(--negro);width:100%;transition:border 0.2s;"
+          onfocus="this.style.borderColor='var(--dorado)'" onblur="this.style.borderColor='var(--beige)'">
+      </div>
+    </div>
+
+    <p style="font-size:0.65rem;color:var(--gris);margin-bottom:0.8rem;line-height:1.6;">
+      📦 Envíos al <strong>Estado de México</strong> y <strong>Neza</strong>.<br>
+      Elige con quién contactar:
     </p>
     <div style="display:flex;flex-direction:column;gap:0.6rem;">
       <button class="btn-checkout btn-wa" onclick="pedirPorWhatsApp('5215529617035')" style="background:#25D366;display:flex;align-items:center;justify-content:center;gap:0.6rem;">
@@ -872,10 +906,26 @@ function limpiarFiltros() {
 
 function pedirPorWhatsApp(numero) {
   if (carrito.length === 0) return;
-  const lineas = carrito.map(c => `• ${c.nombre} x${c.qty} (talla por confirmar) — $${(c.precio * c.qty).toLocaleString()}`).join('\n');
-  const total = carrito.reduce((a, c) => a + c.precio * c.qty, 0);
+  const nombre = document.getElementById('clienteNombre').value.trim();
+  const talla  = document.getElementById('clienteTalla').value;
+  const zona   = document.getElementById('clienteZona').value.trim();
+  if (!nombre || !talla || !zona) {
+    mostrarToast('Por favor llena todos los datos del pedido');
+    return;
+  }
+  const lineas = carrito.map(c => `• ${c.nombre} x${c.qty} — $${(c.precio * c.qty).toLocaleString()}`).join('\n');
+  const total  = carrito.reduce((a, c) => a + c.precio * c.qty, 0);
   const msg = encodeURIComponent(
-    `¡Hola! Quiero hacer un pedido 👟\n\n${lineas}\n\n*Total: $${total.toLocaleString()}*\n\nZona de envío: Estado de México / Neza`
+`¡Hola! Quiero hacer un pedido 👟
+
+*Nombre:* ${nombre}
+*Talla:* ${talla}
+*Zona de entrega:* ${zona}
+
+*Productos:*
+${lineas}
+
+*Total: $${total.toLocaleString()}*`
   );
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
 }
