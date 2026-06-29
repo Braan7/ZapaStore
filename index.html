@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASO — Zapatos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --negro: #0A0A0A;
+    --crema: #F5F0E8;
+    --dorado: #C8A96E;
+    --beige: #E8E0D0;
+    --cafe: #6B5B3E;
+    --gris: #9A9088;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--crema);
+    color: var(--negro);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR PERSONALIZADO */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--negro);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.15s ease, background 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--negro);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.35s ease, width 0.3s, height 0.3s, border-color 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor.hover { transform: translate(-50%,-50%) scale(2.5); background: var(--dorado); }
+  .cursor-ring.hover { width: 60px; height: 60px; border-color: var(--dorado); }
+
+  /* NAVBAR */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.4rem 3rem;
+    mix-blend-mode: normal;
+    transition: background 0.3s;
+  }
+  nav.scrolled { background: rgba(245,240,232,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--beige); }
+  .nav-logo {
+    font-family: 'Cormorant Garant', serif;
+    font-size: 1.8rem; font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--negro);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--negro); text-decoration: none;
+    position: relative; padding-bottom: 2px;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 1px; background: var(--dorado);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-icons { display: flex; gap: 1.4rem; align-items: center; }
+  .nav-icons button {
+    background: none; border: none; cursor: none;
+    color: var(--negro); font-size: 1rem; position: relative;
+  }
+  .cart-count {
+    position: absolute; top: -6px; right: -8px;
+    width: 16px; height: 16px; background: var(--dorado);
+    border-radius: 50%; font-size: 0.6rem; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-family: 'Inter', sans-serif;
+  }
+
+  /* HERO */
+  .hero {
+    height: 100vh; display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden; position: relative;
+  }
+  .hero-left {
+    background: var(--negro);
+    display: flex; align-items: flex-end;
+    padding: 6rem 3rem 5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-img-wrap {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-shoe {
+    width: 85%; max-width: 460px;
+    filter: drop-shadow(0 40px 60px rgba(0,0,0,0.5));
+    animation: floatHero 5s ease-in-out infinite;
+  }
+  @keyframes floatHero {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-18px) rotate(-6deg); }
+  }
+  .hero-tag {
+    position: absolute; top: 3rem; left: 3rem;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gris); font-family: 'Inter', sans-serif;
+  }
+  .hero-right {
+    background: var(--crema);
+    display: flex; flex-direction: column;
+    justify-content: center; padding: 6rem 4rem 5rem 5rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--dorado); margin-bottom: 1.4rem;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garant', serif;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 300; line-height: 1.05;
+    color: var(--negro); margin-bottom: 1.8rem;
+  }
+  .hero-title em { font-style: italic; color: var(--cafe); }
+  .hero-desc {
+    font-size: 0.85rem; line-height: 1.75;
+    color: var(--gris); max-width: 340px; margin-bottom: 3rem;
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 1rem;
+    background: var(--negro); color: var(--crema);
+    padding: 1rem 2.2rem; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    border: none; cursor: none; font-family: 'Inter', sans-serif;
+    font-weight: 500; text-decoration: none;
+    transition: background 0.3s, gap 0.3s; align-self: flex-start;
+  }
+  .hero-cta:hover { background: var(--dorado); gap: 1.6rem; }
+  .hero-cta span { font-size: 1rem; }
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; right: 3rem;
+    writing-mode: vertical-rl; font-size: 0.6rem;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gris); display: flex; align-items: center; gap: 0.8rem;
+  }
+  .hero-scroll::before {
+    content: ''; width: 1px; height: 50px; background: var(--dorado);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0%,100% { transform: scaleY(1); opacity: 1; }
+    50% { transform: scaleY(0.4); opacity: 0.3; }
+  }
+
+  /* BANDA */
+  .banda {
+    background: var(--dorado);
+    overflow: hidden; padding: 0.9rem 0;
+    display: flex; gap: 0;
+  }
+  .banda-track {
+    display: flex; gap: 4rem; white-space: nowrap;
+    animation: ticker 20s linear infinite;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--negro); font-weight: 500;
+  }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .banda-item::before { content: '✦  '; }
+
+  /* CATEGORÍAS */
+  .categorias { padding: 7rem 3rem; }
+  .section-header { text-align: center; margin-bottom: 4rem; }
+  .section-eyebrow {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--dorado); margin-bottom: 1rem; display: block;
+  }
+  .section-title {
+    font-family: 'Cormorant Garant', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300; color: var(--negro);
+  }
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
+  .cat-card {
+    position: relative; overflow: hidden; cursor: none;
+    aspect-ratio: 3/4;
+    background: var(--negro);
+  }
+  .cat-card img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.6s ease, filter 0.6s;
+    filter: brightness(0.7);
+  }
+  .cat-card:hover img { transform: scale(1.08); filter: brightness(0.5); }
+  .cat-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 2rem 1.8rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    color: white;
+    transform: translateY(0);
+    transition: transform 0.4s;
+  }
+  .cat-name {
+    font-family: 'Cormorant Garant', serif;
+    font-size: 1.8rem; font-weight: 300; margin-bottom: 0.3rem;
+  }
+  .cat-count { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dorado); }
+  .cat-btn {
+    display: inline-block; margin-top: 1rem;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: white; border-bottom: 1px solid var(--dorado);
+    padding-bottom: 2px; opacity: 0;
+    transition: opacity 0.3s 0.1s;
+  }
+  .cat-card:hover .cat-btn { opacity: 1; }
+
+  /* PRODUCTOS */
+  .productos { padding: 2rem 3rem 7rem; background: white; }
+  .productos-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 3rem; max-width: 1200px; margin-left: auto; margin-right: auto;
+    padding-bottom: 3rem;
+  }
+  .filtros { display: flex; gap: 0.6rem; flex-wrap: wrap; padding-top: 1rem; }
+  .filtro {
+    padding: 0.5rem 1.2rem; border: 1px solid var(--beige);
+    background: none; font-size: 0.68rem; letter-spacing: 0.15em;
+    text-transform: uppercase; cursor: none; font-family: 'Inter', sans-serif;
+    color: var(--gris); transition: all 0.25s;
+  }
+  .filtro.active, .filtro:hover {
+    background: var(--negro); color: var(--crema); border-color: var(--negro);
+  }
+  .prod-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2rem; max-width: 1200px; margin: 0 auto;
+  }
+  .prod-card { position: relative; cursor: none; }
+  .prod-img-wrap {
+    position: relative; overflow: hidden;
+    background: var(--crema); aspect-ratio: 3/4; margin-bottom: 1.2rem;
+  }
+  .prod-img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .prod-card:hover .prod-img { transform: scale(1.05); }
+  .prod-badge {
+    position: absolute; top: 1rem; left: 1rem;
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 0.3rem 0.8rem; font-family: 'Inter', sans-serif; font-weight: 500;
+  }
+  .badge-nuevo { background: var(--negro); color: white; }
+  .badge-oferta { background: var(--dorado); color: white; }
+  .prod-actions {
+    position: absolute; bottom: 1rem; left: 1rem; right: 1rem;
+    display: flex; gap: 0.5rem;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .prod-card:hover .prod-actions { opacity: 1; transform: translateY(0); }
+  .btn-carrito {
+    flex: 1; background: var(--negro); color: white;
+    border: none; padding: 0.75rem; font-size: 0.65rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: none; font-family: 'Inter', sans-serif; font-weight: 500;
+    transition: background 0.25s;
+  }
+  .btn-carrito:hover { background: var(--dorado); }
+  .btn-fav {
+    background: white; border: 1px solid var(--beige);
+    padding: 0.75rem 1rem; cursor: none; font-size: 1rem;
+    transition: all 0.25s;
+  }
+  .btn-fav:hover { border-color: var(--dorado); color: var(--dorado); }
+  .prod-marca {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gris); margin-bottom: 0.35rem;
+  }
+  .prod-nombre {
+    font-family: 'Cormorant Garant', serif;
+    font-size: 1.1rem; font-weight: 400; margin-bottom: 0.5rem;
+  }
+  .prod-precio { display: flex; gap: 0.8rem; align-items: center; }
+  .precio-actual { font-weight: 500; font-size: 0.9rem; }
+  .precio-antes { font-size: 0.8rem; color: var(--gris); text-decoration: line-through; }
+  .tallas-mini { display: flex; gap: 0.3rem; margin-top: 0.6rem; flex-wrap: wrap; }
+  .talla {
+    font-size: 0.6rem; padding: 0.2rem 0.5rem;
+    border: 1px solid var(--beige); color: var(--gris);
+    cursor: none; transition: all 0.2s;
+  }
+  .talla:hover { border-color: var(--negro); color: var(--negro); }
+  .talla-sel { border-color: var(--dorado) !important; color: var(--dorado) !important; font-weight: 500; }
+
+  /* BANNER CENTRAL */
+  .banner-central {
+    padding: 8rem 3rem;
+    background: var(--negro);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .banner-bg-text {
+    position: absolute; font-family: 'Cormorant Garant', serif;
+    font-size: 20vw; font-weight: 300; color: rgba(255,255,255,0.03);
+    letter-spacing: 0.1em; user-select: none; white-space: nowrap;
+  }
+  .banner-content { position: relative; z-index: 1; max-width: 700px; }
+  .banner-content .section-eyebrow { color: var(--dorado); }
+  .banner-title {
+    font-family: 'Cormorant Garant', serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 300;
+    color: white; line-height: 1.1; margin-bottom: 1.5rem;
+  }
+  .banner-title em { font-style: italic; color: var(--dorado); }
+  .banner-desc { color: var(--gris); font-size: 0.85rem; line-height: 1.75; margin-bottom: 2.5rem; }
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 1rem;
+    border: 1px solid var(--dorado); color: var(--dorado);
+    padding: 1rem 2.5rem; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: none; font-family: 'Inter', sans-serif; background: none;
+    transition: all 0.3s; text-decoration: none;
+  }
+  .btn-outline:hover { background: var(--dorado); color: var(--negro); }
+
+  /* CARRITO LATERAL */
+  .carrito-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 500; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .carrito-overlay.open { opacity: 1; pointer-events: all; }
+  .carrito-panel {
+    position: fixed; top: 0; right: -420px; width: 420px; height: 100%;
+    background: white; z-index: 600; padding: 2.5rem 2rem;
+    transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .carrito-panel.open { right: 0; }
+  .carrito-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .carrito-titulo {
+    font-family: 'Cormorant Garant', serif;
+    font-size: 1.6rem; font-weight: 300;
+  }
+  .carrito-cerrar {
+    background: none; border: none; font-size: 1.2rem;
+    cursor: none; color: var(--gris);
+  }
+  .carrito-items { flex: 1; }
+  .carrito-vacio {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 200px; color: var(--gris);
+    font-size: 0.8rem; gap: 1rem; text-align: center;
+  }
+  .carrito-vacio .icon { font-size: 2.5rem; }
+  .carrito-item {
+    display: grid; grid-template-columns: 80px 1fr auto;
+    gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--beige);
+  }
+  .carrito-item img { width: 80px; height: 80px; object-fit: cover; background: var(--crema); }
+  .ci-nombre { font-family: 'Cormorant Garant', serif; font-size: 1rem; margin-bottom: 0.3rem; }
+  .ci-talla { font-size: 0.65rem; color: var(--gris); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .ci-precio { font-size: 0.85rem; font-weight: 500; }
+  .ci-remove { background: none; border: none; cursor: none; color: var(--gris); font-size: 1rem; align-self: start; }
+  .carrito-footer { border-top: 1px solid var(--beige); padding-top: 1.5rem; margin-top: 1rem; }
+  .carrito-total { display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.85rem; }
+  .carrito-total span:last-child { font-weight: 500; font-size: 1.1rem; }
+  .btn-checkout {
+    width: 100%; background: var(--negro); color: white;
+    border: none; padding: 1.1rem; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: none; font-family: 'Inter', sans-serif; font-weight: 500;
+    transition: background 0.3s;
+  }
+  .btn-checkout:hover { background: var(--dorado); }
+
+  /* FOOTER */
+  footer {
+    background: var(--negro); color: var(--crema);
+    padding: 5rem 3rem 2.5rem;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; max-width: 1200px; margin: 0 auto 4rem; }
+  .footer-brand .nav-logo { color: var(--crema); display: block; margin-bottom: 1rem; }
+  .footer-desc { font-size: 0.8rem; line-height: 1.75; color: var(--gris); max-width: 260px; }
+  .footer-col h4 {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--dorado); margin-bottom: 1.5rem;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+  .footer-col ul a { font-size: 0.8rem; color: var(--gris); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--crema); }
+  .footer-bottom {
+    max-width: 1200px; margin: 0 auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 2rem; display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: var(--gris); align-items: center;
+  }
+
+  /* TOSTADA */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--negro); color: white;
+    padding: 1rem 2rem; font-size: 0.75rem; letter-spacing: 0.15em;
+    text-transform: uppercase; z-index: 800; transition: transform 0.4s;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast-icon { color: var(--dorado); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { display: none; }
+    .hero-right { padding: 8rem 2rem 4rem; }
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+    .prod-grid { grid-template-columns: 1fr 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .carrito-panel { width: 100%; right: -100%; }
+    .productos, .categorias { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">PASO</a>
+  <ul class="nav-links">
+    <li><a href="#colecciones">Colecciones</a></li>
+    <li><a href="#productos">Productos</a></li>
+    <li><a href="#">Hombre</a></li>
+    <li><a href="#">Mujer</a></li>
+    <li><a href="#">Niños</a></li>
+  </ul>
+  <div class="nav-icons">
+    <button onclick="toggleCarrito()" title="Carrito">
+      🛒
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+    <button title="Buscar">🔍</button>
+    <button title="Cuenta">👤</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-tag">Colección Primavera 2025</span>
+    <div class="hero-img-wrap">
+      <!-- Zapato SVG ilustrado -->
+      <svg class="hero-shoe" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Suela -->
+        <ellipse cx="240" cy="270" rx="200" ry="22" fill="#1a1a1a"/>
+        <!-- Cuerpo del zapato -->
+        <path d="M60 240 Q80 180 160 160 Q220 145 280 148 Q340 150 380 170 Q420 188 430 220 Q440 245 420 255 Q380 268 300 268 Q200 268 120 262 Q70 258 60 240Z" fill="#C8A96E"/>
+        <!-- Detalle lateral -->
+        <path d="M100 235 Q160 200 260 198 Q340 198 390 220" stroke="#6B5B3E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Puntera -->
+        <path d="M60 240 Q55 220 70 205 Q90 190 130 188 Q160 186 170 195 Q160 215 130 228 Q90 242 60 240Z" fill="#B89058"/>
+        <!-- Talón -->
+        <path d="M390 220 Q430 215 445 235 Q450 250 430 258 Q410 265 390 258Z" fill="#B89058"/>
+        <!-- Cordones -->
+        <line x1="200" y1="170" x2="200" y2="155" stroke="white" stroke-width="1.5"/>
+        <line x1="220" y1="168" x2="220" y2="152" stroke="white" stroke-width="1.5"/>
+        <line x1="240" y1="167" x2="240" y2="151" stroke="white" stroke-width="1.5"/>
+        <line x1="260" y1="167" x2="260" y2="151" stroke="white" stroke-width="1.5"/>
+        <line x1="280" y1="167" x2="280" y2="152" stroke="white" stroke-width="1.5"/>
+        <!-- Lengüeta -->
+        <path d="M195 155 Q230 140 270 152 L265 168 Q230 158 200 170Z" fill="#D4B87A"/>
+        <!-- Ribete -->
+        <path d="M195 155 Q230 138 270 152" stroke="white" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+  </div>
+  <div class="hero-right">
+    <p class="hero-eyebrow">Nueva colección</p>
+    <h1 class="hero-title">El zapato que<br>define tu <em>estilo</em></h1>
+    <p class="hero-desc">Diseños pensados para quien camina con propósito. Materiales premium, confort sin concesiones y una estética que habla antes que tú.</p>
+    <a href="#productos" class="hero-cta">Ver colección <span>→</span></a>
+  </div>
+  <div class="hero-scroll">Scroll <div></div></div>
+</section>
+
+<!-- BANDA TICKER -->
+<div class="banda">
+  <div class="banda-track" id="track">
+    <span class="banda-item">Envíos al Estado de México y Neza</span>
+    <span class="banda-item">Garantía de 6 meses</span>
+    <span class="banda-item">Devoluciones sin costo</span>
+    <span class="banda-item">Tallas del 3 al 6 — sistema mexicano</span>
+    <span class="banda-item">Pedidos por WhatsApp</span>
+    <span class="banda-item">Envíos al Estado de México y Neza</span>
+    <span class="banda-item">Garantía de 6 meses</span>
+    <span class="banda-item">Devoluciones sin costo</span>
+    <span class="banda-item">Tallas del 3 al 6 — sistema mexicano</span>
+    <span class="banda-item">Pedidos por WhatsApp</span>
+  </div>
+</div>
+
+<!-- CATEGORÍAS -->
+<section class="categorias" id="colecciones">
+  <div class="section-header">
+    <span class="section-eyebrow">Explora por categoría</span>
+    <h2 class="section-title">Encuentra tu par perfecto</h2>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card">
+      <img src="imgs/b12_blanco_rosa_neon_chunky.jpg" alt="Chunky">
+      <div class="cat-info">
+        <div class="cat-name">Chunky</div>
+        <div class="cat-count">7 modelos</div>
+        <a href="#productos" class="cat-btn">Ver todos →</a>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="imgs/img2.jpg" alt="Fashion Sports">
+      <div class="cat-info">
+        <div class="cat-name">Fashion Sports</div>
+        <div class="cat-count">5 modelos</div>
+        <a href="#productos" class="cat-btn">Ver todos →</a>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="imgs/b9_negro_blanco_runner.jpg" alt="Deportivo">
+      <div class="cat-info">
+        <div class="cat-name">Deportivo</div>
+        <div class="cat-count">8 modelos</div>
+        <a href="#productos" class="cat-btn">Ver todos →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTOS -->
+<section class="productos" id="productos">
+  <div class="productos-header" style="flex-wrap:wrap; gap:1.5rem;">
+    <div>
+      <span class="section-eyebrow" style="text-align:left">Lo más reciente</span>
+      <h2 class="section-title">Nuevos ingresos</h2>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.9rem; align-items:flex-end;">
+      <!-- Filtro género -->
+      <div class="filtros" id="filtrosGenero">
+        <button class="filtro active" onclick="filtrarGenero(this,'todos')">Todos</button>
+        <button class="filtro" onclick="filtrarGenero(this,'hombre')">Hombre</button>
+        <button class="filtro" onclick="filtrarGenero(this,'mujer')">Mujer</button>
+        <button class="filtro" onclick="filtrarGenero(this,'ninos')">Niños</button>
+      </div>
+      <!-- Filtro talla -->
+      <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; justify-content:flex-end;">
+        <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gris);">Talla</span>
+        <div class="filtros" id="filtrosTalla" style="gap:0.4rem;">
+          <!-- Se llena dinámicamente -->
+        </div>
+        <button class="filtro" id="btnLimpiarTalla" onclick="limpiarTalla()" style="display:none; border-color:var(--dorado); color:var(--dorado);">✕ Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prod-grid" id="prodGrid">
+    <!-- Se llena con JS -->
+  </div>
+</section>
+
+<!-- BANNER CENTRAL -->
+<section class="banner-central">
+  <div class="banner-bg-text">PASO</div>
+  <div class="banner-content">
+    <span class="section-eyebrow">Oferta limitada</span>
+    <h2 class="banner-title">Hasta 40% de descuento en <em>colección anterior</em></h2>
+    <p class="banner-desc">Aprovecha nuestra liquidación de temporada. Stock limitado, precios únicos. Solo por tiempo limitado.</p>
+    <a href="#" class="btn-outline">Ver ofertas →</a>
+  </div>
+</section>
+
+<!-- SECCIÓN ENVÍOS + CONTACTO -->
+<section style="background:var(--crema);padding:5rem 3rem;border-top:1px solid var(--beige);">
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+    <div>
+      <span class="section-eyebrow">Cobertura de envíos</span>
+      <h2 class="section-title" style="margin-bottom:1rem;">Llevamos tus zapatos<br>hasta tu puerta</h2>
+      <p style="font-size:0.85rem;color:var(--gris);line-height:1.8;max-width:420px;">
+        Hacemos envíos a todo el <strong>Estado de México</strong>, <strong>Ciudad Nezahualcóyotl</strong> y sus alrededores. Coordina tu pedido directamente por WhatsApp — es rápido y sin complicaciones.
+      </p>
+      <div style="margin-top:1.8rem;display:flex;flex-direction:column;gap:0.5rem;">
+        <span style="font-size:0.72rem;color:var(--negro);display:flex;align-items:center;gap:0.5rem;">📍 <strong>Estado de México</strong> — cobertura completa</span>
+        <span style="font-size:0.72rem;color:var(--negro);display:flex;align-items:center;gap:0.5rem;">📍 <strong>Neza, Chimalhuacán, Los Reyes, Ecatepec</strong> y más</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <p style="font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gris);margin-bottom:0.5rem;">Contáctanos por WhatsApp</p>
+      <a href="https://wa.me/5215529617035?text=Hola%2C%20me%20interesa%20un%20par%20de%20zapatos%20%F0%9F%91%9F" target="_blank"
+        style="display:flex;align-items:center;gap:1.2rem;background:#25D366;color:white;padding:1.1rem 1.8rem;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.05em;transition:opacity 0.2s;"
+        onmouseover="this.style.opacity=0.88" onmouseout="this.style.opacity=1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.855L.057 23.885a.5.5 0 00.612.612l6.03-1.465A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.9a9.9 9.9 0 01-5.04-1.374l-.36-.214-3.733.907.923-3.625-.235-.373A9.9 9.9 0 012.1 12C2.1 6.534 6.534 2.1 12 2.1c5.466 0 9.9 4.434 9.9 9.9 0 5.466-4.434 9.9-9.9 9.9z"/></svg>
+        <div>
+          <div style="font-size:0.65rem;opacity:0.85;margin-bottom:1px;">WhatsApp 1</div>
+          +52 55 2961 7035
+        </div>
+      </a>
+      <a href="https://wa.me/5215648804810?text=Hola%2C%20me%20interesa%20un%20par%20de%20zapatos%20%F0%9F%91%9F" target="_blank"
+        style="display:flex;align-items:center;gap:1.2rem;background:#128C7E;color:white;padding:1.1rem 1.8rem;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.05em;transition:opacity 0.2s;"
+        onmouseover="this.style.opacity=0.88" onmouseout="this.style.opacity=1">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.855L.057 23.885a.5.5 0 00.612.612l6.03-1.465A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.9a9.9 9.9 0 01-5.04-1.374l-.36-.214-3.733.907.923-3.625-.235-.373A9.9 9.9 0 012.1 12C2.1 6.534 6.534 2.1 12 2.1c5.466 0 9.9 4.434 9.9 9.9 0 5.466-4.434 9.9-9.9 9.9z"/></svg>
+        <div>
+          <div style="font-size:0.65rem;opacity:0.85;margin-bottom:1px;">WhatsApp 2</div>
+          +52 56 4880 4810
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">PASO</a>
+      <p class="footer-desc">Calzado con carácter. Cada par es una declaración de intenciones para quienes saben a dónde van.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Ofertas</a></li>
+        <li><a href="#">Hombre</a></li>
+        <li><a href="#">Mujer</a></li>
+        <li><a href="#">Niños</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Guía de tallas</a></li>
+        <li><a href="https://wa.me/5215529617035" target="_blank">WhatsApp 1: 55 2961 7035</a></li>
+        <li><a href="https://wa.me/5215648804810" target="_blank">WhatsApp 2: 56 4880 4810</a></li>
+        <li><a href="#">Rastrear pedido</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre PASO</a></li>
+        <li><a href="#">Sostenibilidad</a></li>
+        <li><a href="#">Trabaja con nosotros</a></li>
+        <li><a href="#">Prensa</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 PASO. Todos los derechos reservados.</span>
+    <span>Hecho en México 🇲🇽</span>
+  </div>
+</footer>
+
+<!-- CARRITO -->
+<div class="carrito-overlay" id="carritoOverlay" onclick="toggleCarrito()"></div>
+<div class="carrito-panel" id="carritoPanel">
+  <div class="carrito-header">
+    <h3 class="carrito-titulo">Tu carrito</h3>
+    <button class="carrito-cerrar" onclick="toggleCarrito()">✕</button>
+  </div>
+  <div class="carrito-items" id="carritoItems">
+    <div class="carrito-vacio">
+      <span class="icon">👟</span>
+      <span>Tu carrito está vacío</span>
+      <span style="font-size:0.7rem;color:var(--gris)">Agrega algunos pares para comenzar</span>
+    </div>
+  </div>
+  <div class="carrito-footer" id="carritoFooter" style="display:none">
+    <div class="carrito-total">
+      <span>Total</span>
+      <span id="carritoTotal">$0</span>
+    </div>
+    <p style="font-size:0.68rem;color:var(--gris);margin-bottom:1rem;line-height:1.6;">
+      📍 Envíos al <strong>Estado de México</strong> y <strong>Neza</strong> y alrededores.<br>
+      Elige con quién contactar para coordinar tu pedido:
+    </p>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      <button class="btn-checkout btn-wa" onclick="pedirPorWhatsApp('5215529617035')" style="background:#25D366;display:flex;align-items:center;justify-content:center;gap:0.6rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.855L.057 23.885a.5.5 0 00.612.612l6.03-1.465A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.9a9.9 9.9 0 01-5.04-1.374l-.36-.214-3.733.907.923-3.625-.235-.373A9.9 9.9 0 012.1 12C2.1 6.534 6.534 2.1 12 2.1c5.466 0 9.9 4.434 9.9 9.9 0 5.466-4.434 9.9-9.9 9.9z"/></svg>
+        WhatsApp 1 — 55 2961 7035
+      </button>
+      <button class="btn-checkout btn-wa" onclick="pedirPorWhatsApp('5215648804810')" style="background:#128C7E;display:flex;align-items:center;justify-content:center;gap:0.6rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.522 5.855L.057 23.885a.5.5 0 00.612.612l6.03-1.465A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.9a9.9 9.9 0 01-5.04-1.374l-.36-.214-3.733.907.923-3.625-.235-.373A9.9 9.9 0 012.1 12C2.1 6.534 6.534 2.1 12 2.1c5.466 0 9.9 4.434 9.9 9.9 0 5.466-4.434 9.9-9.9 9.9z"/></svg>
+        WhatsApp 2 — 56 4880 4810
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastMsg">Producto agregado al carrito</span>
+</div>
+
+<script>
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  }, 80);
+});
+
+// Navbar scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Catálogo completo — modelos únicos de ambos lotes — $250 todos
+const productos = [
+  // ── LOTE 1 ─────────────────────────────────────────────────────
+  { id:1,  nombre:'Chunky Blanco Track Total',        marca:'Chunky',    precio:250, img:'imgs/img4.jpg',   imgHover:'imgs/b6_chunky_blanco_track_frontal.jpg', badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:2,  nombre:'Tenis Blanco Rayas Zebra',         marca:'Casual',    precio:250, img:'imgs/img1.jpg',   imgHover:'imgs/img1.jpg',                           badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:3,  nombre:'Tenis Crema Moño y Perlas',        marca:'Fashion',   precio:250, img:'imgs/img2.jpg',   imgHover:'imgs/b11_crema_moño_perlas_par.jpg',      badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½'] },
+  { id:4,  nombre:'Tenis Blanco con Café Runner',     marca:'Deportivo', precio:250, img:'imgs/img3.jpg',   imgHover:'imgs/img7.jpg',                           badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:5,  nombre:'Tenis Negro Plataforma Blanca',    marca:'Plataforma',precio:250, img:'imgs/img5.jpg',   imgHover:'imgs/img5.jpg',                           badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:6,  nombre:'Tenis Blanco con Azul Marino',     marca:'Casual',    precio:250, img:'imgs/img6.jpg',   imgHover:'imgs/img6.jpg',                           badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½'] },
+  { id:7,  nombre:'Fashion Sports Gris Plata Rosa',   marca:'Fashion',   precio:250, img:'imgs/img6.jpg',   imgHover:'imgs/b2_fashion_gris_plata_rosa.jpg',     badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:8,  nombre:'Tenis Negro Plataforma Leopardo',  marca:'Plataforma',precio:250, img:'imgs/img8.jpg',   imgHover:'imgs/img8.jpg',                           badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½'] },
+  { id:9,  nombre:'Tenis Blanco Gris con Azul',       marca:'Deportivo', precio:250, img:'imgs/img9.jpg',   imgHover:'imgs/img9.jpg',                           badge:'nuevo', cat:'hombre', tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:10, nombre:'Chunky Negro Deportivo',           marca:'Chunky',    precio:250, img:'imgs/img10.jpg',  imgHover:'imgs/b7_chunky_negro_par.jpg',            badge:'nuevo', cat:'hombre', tallas:['4','4½','5','5½','6'] },
+  { id:11, nombre:'Tenis Blanco Perla con Plata',     marca:'Fashion',   precio:250, img:'imgs/img11.jpg',  imgHover:'imgs/img11.jpg',                          badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½'] },
+  { id:12, nombre:'Tenis Rosa Chunky Total',          marca:'Chunky',    precio:250, img:'imgs/img12.jpg',  imgHover:'imgs/img12.jpg',                          badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  // ── LOTE 2 — modelos nuevos ────────────────────────────────────
+  { id:13, nombre:'Chunky Blanco Beige Mesh',         marca:'Chunky',    precio:250, img:'imgs/b4_chunky_blanco_beige_mesh.jpg',   imgHover:'imgs/b16_blanco_rosa_pale_chunky.jpg', badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:14, nombre:'Runner Negro con Gris Plata',      marca:'Deportivo', precio:250, img:'imgs/b9_negro_blanco_runner.jpg',        imgHover:'imgs/b20_negro_gris_plata_runner.jpg', badge:'nuevo', cat:'hombre', tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:15, nombre:'Chunky Blanco Rosa Neón',          marca:'Chunky',    precio:250, img:'imgs/b12_blanco_rosa_neon_chunky.jpg',   imgHover:'imgs/b12_blanco_rosa_neon_chunky.jpg', badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:16, nombre:'Runner Negro P-6000',              marca:'Deportivo', precio:250, img:'imgs/b8_negro_p6000_running.jpg',        imgHover:'imgs/b8_negro_p6000_running.jpg',       badge:'nuevo', cat:'hombre', tallas:['4','4½','5','5½','6'] },
+  { id:17, nombre:'Tenis Marino Suela Blanca',        marca:'Casual',    precio:250, img:'imgs/b3_estante_3modelos_marino_blanco.jpg', imgHover:'imgs/b19_estante_4modelos.jpg',    badge:'nuevo', cat:'hombre', tallas:['3','3½','4','4½','5','5½','6'] },
+  { id:18, nombre:'Runner Plata Negro Estilo Nike',   marca:'Deportivo', precio:250, img:'imgs/b15_estante_negro_gris_nike.jpg',   imgHover:'imgs/b15_estante_negro_gris_nike.jpg', badge:'nuevo', cat:'hombre', tallas:['4','4½','5','5½','6'] },
+  { id:19, nombre:'Runner Rosa Palo Mujer',           marca:'Deportivo', precio:250, img:'imgs/b19_estante_4modelos.jpg',          imgHover:'imgs/b19_estante_4modelos.jpg',         badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½'] },
+  { id:20, nombre:'Chunky Blanco Runner Mesh',        marca:'Chunky',    precio:250, img:'imgs/b17_blanco_chunky_2pares.jpg',      imgHover:'imgs/b17_blanco_chunky_2pares.jpg',     badge:'nuevo', cat:'mujer',  tallas:['3','3½','4','4½','5','5½','6'] },
+];
+
+let carrito = [];
+let filtroGenero = 'todos';
+let filtroTalla = null;
+
+// Tallas mexicanas del 3 al 6, incluyendo medios
+const TODAS_TALLAS = ['3','3½','4','4½','5','5½','6'];
+
+function tallasPorGenero(genero) {
+  return TODAS_TALLAS; // mismas tallas para todos (3–6 Mx)
+}
+
+function renderFiltrosTalla() {
+  const cont = document.getElementById('filtrosTalla');
+  const tallas = tallasPorGenero(filtroGenero);
+  cont.innerHTML = tallas.map(t => `
+    <button class="filtro talla-btn ${filtroTalla === t ? 'active' : ''}"
+      onclick="filtrarTalla(this, '${t}')">${t}</button>
+  `).join('');
+  aplicarCursorHover();
+}
+
+function renderProductos() {
+  const grid = document.getElementById('prodGrid');
+  let lista = filtroGenero === 'todos' ? productos : productos.filter(p => p.cat === filtroGenero);
+  if (filtroTalla) lista = lista.filter(p => p.tallas.includes(filtroTalla));
+
+  if (lista.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--gris);font-size:0.85rem;">
+      <div style="font-size:2.5rem;margin-bottom:1rem">👟</div>
+      No hay productos con esa combinación de filtros.<br>
+      <button onclick="limpiarFiltros()" style="margin-top:1.2rem;background:var(--negro);color:white;border:none;padding:0.7rem 1.8rem;font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;cursor:none;font-family:inherit;">Limpiar filtros</button>
+    </div>`;
+    aplicarCursorHover();
+    return;
+  }
+
+  grid.innerHTML = lista.map(p => `
+    <div class="prod-card">
+      <div class="prod-img-wrap">
+        <img class="prod-img img-principal" src="${p.img}" alt="${p.nombre}" loading="lazy">
+        ${p.imgHover !== p.img ? `<img class="prod-img img-hover" src="${p.imgHover}" alt="${p.nombre} vista 2" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;">` : ''}
+        ${p.badge ? `<span class="prod-badge badge-${p.badge}">${p.badge === 'nuevo' ? 'Nuevo' : 'Oferta'}</span>` : ''}
+        <div class="prod-actions">
+          <button class="btn-carrito" onclick="agregarAlCarrito(${p.id})">Agregar al carrito</button>
+          <button class="btn-fav">♡</button>
+        </div>
+      </div>
+      <p class="prod-marca">${p.marca}</p>
+      <h3 class="prod-nombre">${p.nombre}</h3>
+      <div class="prod-precio">
+        <span class="precio-actual">$${p.precio.toLocaleString()}</span>
+        ${p.antes ? `<span class="precio-antes">$${p.antes.toLocaleString()}</span>` : ''}
+      </div>
+      <div class="tallas-mini">
+        ${p.tallas.map(t => `<span class="talla ${filtroTalla === t ? 'talla-sel' : ''}">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Hover imagen alternativa
+  grid.querySelectorAll('.prod-img-wrap').forEach(wrap => {
+    const hover = wrap.querySelector('.img-hover');
+    if (hover) {
+      wrap.addEventListener('mouseenter', () => hover.style.opacity = '1');
+      wrap.addEventListener('mouseleave', () => hover.style.opacity = '0');
+    }
+  });
+  aplicarCursorHover();
+}
+
+function filtrarGenero(btn, genero) {
+  document.querySelectorAll('#filtrosGenero .filtro').forEach(f => f.classList.remove('active'));
+  btn.classList.add('active');
+  filtroGenero = genero;
+  filtroTalla = null; // reset talla al cambiar género
+  document.getElementById('btnLimpiarTalla').style.display = 'none';
+  renderFiltrosTalla();
+  renderProductos();
+}
+
+function filtrarTalla(btn, talla) {
+  if (filtroTalla === talla) {
+    // Deseleccionar
+    filtroTalla = null;
+    document.getElementById('btnLimpiarTalla').style.display = 'none';
+  } else {
+    filtroTalla = talla;
+    document.getElementById('btnLimpiarTalla').style.display = '';
+  }
+  // Resaltar botón activo
+  document.querySelectorAll('.talla-btn').forEach(b => b.classList.remove('active'));
+  if (filtroTalla) btn.classList.add('active');
+  renderProductos();
+}
+
+function limpiarTalla() {
+  filtroTalla = null;
+  document.getElementById('btnLimpiarTalla').style.display = 'none';
+  document.querySelectorAll('.talla-btn').forEach(b => b.classList.remove('active'));
+  renderProductos();
+}
+
+function limpiarFiltros() {
+  filtroGenero = 'todos';
+  filtroTalla = null;
+  document.querySelectorAll('#filtrosGenero .filtro').forEach((f,i) => f.classList.toggle('active', i===0));
+  document.getElementById('btnLimpiarTalla').style.display = 'none';
+  renderFiltrosTalla();
+  renderProductos();
+}
+
+function pedirPorWhatsApp(numero) {
+  if (carrito.length === 0) return;
+  const lineas = carrito.map(c => `• ${c.nombre} x${c.qty} (talla por confirmar) — $${(c.precio * c.qty).toLocaleString()}`).join('\n');
+  const total = carrito.reduce((a, c) => a + c.precio * c.qty, 0);
+  const msg = encodeURIComponent(
+    `¡Hola! Quiero hacer un pedido 👟\n\n${lineas}\n\n*Total: $${total.toLocaleString()}*\n\nZona de envío: Estado de México / Neza`
+  );
+  window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
+}
+
+function agregarAlCarrito(id) {
+  const prod = productos.find(p => p.id === id);
+  const existe = carrito.find(c => c.id === id);
+  if (existe) existe.qty++;
+  else carrito.push({ ...prod, qty: 1 });
+  actualizarCarrito();
+  mostrarToast(`${prod.nombre} agregado al carrito`);
+}
+
+function actualizarCarrito() {
+  const count = carrito.reduce((a, c) => a + c.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+  const total = carrito.reduce((a, c) => a + c.precio * c.qty, 0);
+  document.getElementById('carritoTotal').textContent = '$' + total.toLocaleString();
+
+  const items = document.getElementById('carritoItems');
+  const footer = document.getElementById('carritoFooter');
+
+  if (carrito.length === 0) {
+    items.innerHTML = `<div class="carrito-vacio"><span class="icon">👟</span><span>Tu carrito está vacío</span></div>`;
+    footer.style.display = 'none';
+  } else {
+    footer.style.display = 'block';
+    items.innerHTML = carrito.map(c => `
+      <div class="carrito-item">
+        <img src="${c.img}" alt="${c.nombre}">
+        <div>
+          <div class="ci-nombre">${c.nombre}</div>
+          <div class="ci-talla">Cantidad: ${c.qty}</div>
+          <div class="ci-precio">$${(c.precio * c.qty).toLocaleString()}</div>
+        </div>
+        <button class="ci-remove" onclick="quitarDelCarrito(${c.id})">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+function quitarDelCarrito(id) {
+  carrito = carrito.filter(c => c.id !== id);
+  actualizarCarrito();
+}
+
+function toggleCarrito() {
+  document.getElementById('carritoOverlay').classList.toggle('open');
+  document.getElementById('carritoPanel').classList.toggle('open');
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function aplicarCursorHover() {
+  document.querySelectorAll('a,button,.cat-card,.prod-card,.filtro,.talla,.talla-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); ring.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); ring.classList.remove('hover'); });
+  });
+}
+
+renderFiltrosTalla();
+renderProductos();
+</script>
+</body>
+</html>
